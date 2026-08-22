@@ -1,0 +1,22 @@
+META PIXEL
+Pixel ID: 1053615244262897
+
+Já configurado:
+- PageView
+- ViewContent
+- AddToCart
+- InitiateCheckout
+- AddPaymentInfo
+
+API DE CONVERSÕES (CAPI)
+O arquivo meta-capi.php já está preparado para Hostinger/PHP.
+Para ativá-lo, ainda é necessário configurar no servidor o Access Token da API de Conversões
+como variável META_CAPI_ACCESS_TOKEN.
+
+NÃO coloque o Access Token dentro do HTML ou JavaScript.
+
+PURCHASE
+Purchase não é disparado ao clicar em "Pagar com Pix", porque esse clique não confirma pagamento.
+Para rastrear Purchase corretamente, use o webhook de pagamento da Veopag após a confirmação do Pix.
+
+CPF não é enviado para a Meta.
