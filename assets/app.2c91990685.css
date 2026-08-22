@@ -623,12 +623,19 @@
 .review-viewer-progress::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:#fff;border:0}
 .review-viewer-time{min-width:72px;color:#fff;font-size:11px;font-weight:600;text-align:center;font-variant-numeric:tabular-nums;white-space:nowrap}
 
+/* Botão de carregamento das avaliações */
+.reviews-load-more-wrap{display:flex;justify-content:center;margin:24px 0 12px}
+.reviews-load-more{appearance:none;min-width:176px;height:44px;padding:0 30px;border:1px solid #ee4d2d;border-radius:2px;background:#ee4d2d;color:#fff;font-size:14px;font-weight:600;letter-spacing:.1px;cursor:pointer;box-shadow:0 2px 7px rgba(0,0,0,.2);transition:background .16s ease,border-color .16s ease,transform .12s ease,box-shadow .16s ease;-webkit-tap-highlight-color:transparent}
+.reviews-load-more:hover{background:#f05d40;border-color:#f05d40;box-shadow:0 3px 10px rgba(0,0,0,.25)}
+.reviews-load-more:active{transform:translateY(1px);background:#d94225;border-color:#d94225;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.reviews-load-more:focus-visible{outline:2px solid rgba(238,77,45,.45);outline-offset:3px}
+
 /* Logos de pagamento sem cartões, fundos ou bordas */
 .payments{gap:22px}
 .pay{background:transparent;color:inherit;border:0;border-radius:0;padding:0;min-width:0;height:42px;box-shadow:none}
 .pay img{display:block;width:auto;max-height:34px;object-fit:contain}
 .pay.card img{max-width:140px}
-.pay.pix img{max-width:104px}
+.pay.pix img{width:120px;height:40px;max-width:none;max-height:none;object-fit:cover;object-position:center}
 
 @media(max-width:768px){
   .media .review-video-preview{flex-basis:70px;width:70px;height:70px}
