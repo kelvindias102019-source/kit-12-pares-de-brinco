@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-ofVNA6upuHWOs3paq6qfQsIZmYjF26JZH9a+ZCW65tw=' https://connect.facebook.net; style-src 'self'; img-src 'self' data: https://www.facebook.com; media-src 'self' blob:; connect-src 'self' https://viacep.com.br https://www.facebook.com https://connect.facebook.net https://graph.facebook.com; font-src 'self' data:; object-src 'none'; base-uri 'self'; frame-src 'none'; worker-src 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-YHvRwjATZY7k8yYNV2WyS4sGg34fmwOk4nH4bh4VPb0=' 'sha256-g2BlC0GW+FkKbSGlLdjLoZDgyFcpfvLVFO6F708AP8o=' https://connect.facebook.net; style-src 'self'; img-src 'self' data: https://www.facebook.com; media-src 'self' blob:; connect-src 'self' https://viacep.com.br https://www.facebook.com https://connect.facebook.net https://graph.facebook.com; font-src 'self' data:; object-src 'none'; base-uri 'self'; frame-src 'none'; worker-src 'none'">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
 
@@ -18,6 +18,18 @@
   
 
   <!-- Meta Pixel Code -->
+  <script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window,document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init','1053615244262897');
+fbq('track','PageView');
+  </script>
   <!-- End Meta Pixel Code -->
 
 
@@ -311,18 +323,19 @@
   });
 
   const onlyDigits = value => String(value || '').replace(/\D/g, '');
-  const unitPrice = 7.90;
+  const quantityPrices = Object.freeze({ 1: 7.90, 2: 17.80, 3: 26.70 });
   const formatPrice = value => `R$${value.toFixed(2).replace('.', ',')}`;
 
   const syncPrices = () => {
     const quantity = Math.min(3, Math.max(1, Number.parseInt(document.getElementById('qty')?.value, 10) || 1));
+    const selectedPrice = quantityPrices[quantity];
     const prices = {
-      flashPrice: unitPrice,
-      buyPrice: unitPrice,
-      coItemSubtotal: unitPrice * quantity,
-      coProductsTotal: unitPrice * quantity,
-      coOrderTotal: unitPrice * quantity,
-      coBottomTotal: unitPrice * quantity
+      flashPrice: selectedPrice,
+      buyPrice: selectedPrice,
+      coItemSubtotal: selectedPrice,
+      coProductsTotal: selectedPrice,
+      coOrderTotal: selectedPrice,
+      coBottomTotal: selectedPrice
     };
 
     Object.entries(prices).forEach(([id, price]) => {
