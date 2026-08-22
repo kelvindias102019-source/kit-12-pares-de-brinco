@@ -798,6 +798,8 @@ document.querySelectorAll('.social-link').forEach(link=>{
 });
 
 (() => {
+  // Mantido apenas para compatibilidade; as miniaturas agora são estáticas.
+  return;
   const reviewVideos=[...document.querySelectorAll('.review .media video')];
   if(!reviewVideos.length) return;
 
@@ -899,4 +901,165 @@ document.querySelectorAll('.social-link').forEach(link=>{
     syncVolumeButton(video,volumeButton);
     syncProgress();
   });
+})();
+
+(() => {
+  const previewVideos=[...document.querySelectorAll('.review .media video')];
+
+  previewVideos.forEach(video=>{
+    video.pause();
+    const preview=document.createElement('button');
+    preview.type='button';
+    preview.className='review-video-preview';
+    preview.setAttribute('aria-label','Abrir vídeo da avaliação');
+
+    const image=document.createElement('img');
+    image.src=video.getAttribute('poster') || '';
+    image.alt='Prévia do vídeo da avaliação';
+    image.loading='lazy';
+
+    const badge=document.createElement('span');
+    badge.className='review-video-play-badge';
+    badge.setAttribute('aria-hidden','true');
+
+    preview.append(image,badge);
+    preview.addEventListener('click',event=>{
+      event.preventDefault();
+      video.click();
+    });
+    video.replaceWith(preview);
+  });
+
+  const video=document.getElementById('reviewViewerVideo');
+  if(!video || video.closest('.review-viewer-video-shell')) return;
+  video.removeAttribute('controls');
+
+  const icons={
+    play:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>',
+    pause:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>',
+    volume:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4zm11.5-.8v7.6a6 6 0 0 0 0-7.6z"/></svg>',
+    muted:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4zm12.6 3 2.7-2.7-1.4-1.4-2.7 2.7-2.7-2.7-1.4 1.4 2.7 2.7-2.7 2.7 1.4 1.4 2.7-2.7 2.7 2.7 1.4-1.4z"/></svg>',
+    fullscreen:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v2H6v4H4V4zm10 0h6v6h-2V6h-4V4zM4 14h2v4h4v2H4v-6zm14 0h2v6h-6v-2h4v-4z"/></svg>'
+  };
+
+  const shell=document.createElement('div');
+  shell.className='review-viewer-video-shell';
+  video.parentNode.insertBefore(shell,video);
+  shell.appendChild(video);
+
+  const controls=document.createElement('div');
+  controls.className='review-viewer-custom-controls';
+  controls.setAttribute('role','group');
+  controls.setAttribute('aria-label','Controles do vídeo');
+
+  const playButton=document.createElement('button');
+  playButton.type='button';
+  playButton.className='review-viewer-control play';
+
+  const progress=document.createElement('input');
+  progress.type='range';
+  progress.className='review-viewer-progress';
+  progress.min='0';
+  progress.max='1000';
+  progress.value='0';
+  progress.setAttribute('aria-label','Progresso do vídeo');
+  progress.style.setProperty('--viewer-progress','0%');
+
+  const time=document.createElement('span');
+  time.className='review-viewer-time';
+  time.textContent='0:00 / 0:00';
+
+  const volumeButton=document.createElement('button');
+  volumeButton.type='button';
+  volumeButton.className='review-viewer-control volume';
+
+  const fullscreenButton=document.createElement('button');
+  fullscreenButton.type='button';
+  fullscreenButton.className='review-viewer-control fullscreen';
+  fullscreenButton.innerHTML=icons.fullscreen;
+  fullscreenButton.setAttribute('aria-label','Tela cheia');
+  fullscreenButton.title='Tela cheia';
+
+  controls.append(playButton,progress,time,volumeButton,fullscreenButton);
+  shell.appendChild(controls);
+
+  const formatTime=value=>{
+    if(!Number.isFinite(value) || value<0) return '0:00';
+    const minutes=Math.floor(value/60);
+    const seconds=Math.floor(value%60).toString().padStart(2,'0');
+    return `${minutes}:${seconds}`;
+  };
+
+  const syncPlay=()=>{
+    const paused=video.paused || video.ended;
+    playButton.innerHTML=icons[paused?'play':'pause'];
+    playButton.setAttribute('aria-label',paused?'Reproduzir vídeo':'Pausar vídeo');
+    playButton.title=paused?'Reproduzir':'Pausar';
+  };
+
+  const syncVolume=()=>{
+    volumeButton.innerHTML=icons[video.muted?'muted':'volume'];
+    volumeButton.setAttribute('aria-label',video.muted?'Ativar som':'Silenciar vídeo');
+    volumeButton.title=video.muted?'Ativar som':'Silenciar';
+  };
+
+  const syncProgress=()=>{
+    const duration=Number.isFinite(video.duration) ? video.duration : 0;
+    const ratio=duration>0 ? video.currentTime/duration : 0;
+    const value=Math.max(0,Math.min(1000,Math.round(ratio*1000)));
+    progress.value=String(value);
+    progress.style.setProperty('--viewer-progress',`${value/10}%`);
+    time.textContent=`${formatTime(video.currentTime)} / ${formatTime(duration)}`;
+  };
+
+  const syncVisibility=()=>{
+    const visible=video.style.display!=='none' && Boolean(video.getAttribute('src'));
+    shell.style.display=visible?'flex':'none';
+  };
+
+  playButton.addEventListener('click',()=>{
+    if(video.paused || video.ended){
+      const playPromise=video.play();
+      if(playPromise && typeof playPromise.catch==='function') playPromise.catch(()=>{});
+    }else{
+      video.pause();
+    }
+  });
+
+  progress.addEventListener('input',()=>{
+    if(Number.isFinite(video.duration) && video.duration>0){
+      video.currentTime=(Number(progress.value)/1000)*video.duration;
+    }
+  });
+
+  volumeButton.addEventListener('click',()=>{
+    video.muted=!video.muted;
+    syncVolume();
+  });
+
+  fullscreenButton.addEventListener('click',()=>{
+    if(document.fullscreenElement){
+      document.exitFullscreen?.();
+    }else{
+      shell.requestFullscreen?.();
+    }
+  });
+
+  ['click','dblclick','pointerdown','touchstart'].forEach(type=>{
+    controls.addEventListener(type,event=>event.stopPropagation(),{passive:type==='touchstart'});
+  });
+
+  video.addEventListener('play',syncPlay);
+  video.addEventListener('pause',syncPlay);
+  video.addEventListener('ended',()=>{syncPlay();syncProgress();});
+  video.addEventListener('timeupdate',syncProgress);
+  video.addEventListener('loadedmetadata',syncProgress);
+  video.addEventListener('durationchange',syncProgress);
+  video.addEventListener('volumechange',syncVolume);
+
+  new MutationObserver(syncVisibility).observe(video,{attributes:true,attributeFilter:['style','src']});
+  syncPlay();
+  syncVolume();
+  syncProgress();
+  syncVisibility();
 })();
