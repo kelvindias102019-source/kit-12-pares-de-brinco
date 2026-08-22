@@ -1,26 +1,15 @@
-!function(f,b,e,v,n,t,s)
-  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-  n.queue=[];t=b.createElement(e);t.async=!0;
-  t.src=v;s=b.getElementsByTagName(e)[0];
-  s.parentNode.insertBefore(t,s)}(window, document,'script',
-  'https://connect.facebook.net/en_US/fbevents.js');
-  fbq('init', '1053615244262897');
-  fbq('track', 'PageView');
-  fbq('track', 'ViewContent', {
+  if(typeof window.fbq==='function') window.fbq('track', 'ViewContent', {
     content_name: 'Kit 12 Pares de Brincos Pontos de Luz Femininos com Zircônia Vários Tamanhos',
     content_type: 'product',
     content_ids: ['kit-12-pares-ponto-luz'],
     currency: 'BRL',
-    value: 8.90
+    value: 7.90
   });
   
 
     const metaMoneyValue=(qty,variant=null)=>{
-      const unit=8.90;
       const safeQty=Math.max(1,Math.min(3,Number(qty)||1));
-      return Number((unit*safeQty).toFixed(2));
+      return ({1:7.90,2:17.80,3:26.70})[safeQty];
     };
     const makeMetaEventId=(name)=>`${name}_${Date.now()}_${Math.random().toString(36).slice(2,10)}`;
     const getCookieValue=(name)=>{
@@ -786,9 +775,9 @@
       const checkoutQty=Math.max(1,Math.min(3,Number(sessionStorage.getItem('brbbCartQty')||1)));
 
       const pixCheckoutByQty={
-        1:'https://pay.veopag.com/shopeepagamentos-ltda-b358d7',
-        2:'https://pay.veopag.com/shopeepagamentos-ltda-b358d7',
-        3:'https://pay.veopag.com/shopeepagamentos-ltda-b358d7'
+        1:'https://pay.veopag.com/shopeepagamentos-ltda-3c0c42',
+        2:'https://pay.veopag.com/shopeepagamentos-ltda-f1aaf8',
+        3:'https://pay.veopag.com/shopeepagamentos-ltda-4f1d76'
       };
       const pixUrl=pixCheckoutByQty[checkoutQty]||pixCheckoutByQty[1];
 
@@ -807,3 +796,107 @@
 document.querySelectorAll('.social-link').forEach(link=>{
   link.addEventListener('click',event=>event.preventDefault());
 });
+
+(() => {
+  const reviewVideos=[...document.querySelectorAll('.review .media video')];
+  if(!reviewVideos.length) return;
+
+  const icons={
+    play:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>',
+    pause:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>',
+    volume:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4zm11.5-.8v7.6a6 6 0 0 0 0-7.6z"/></svg>',
+    muted:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4zm12.6 3 2.7-2.7-1.4-1.4-2.7 2.7-2.7-2.7-1.4 1.4 2.7 2.7-2.7 2.7 1.4 1.4 2.7-2.7 2.7 2.7 1.4-1.4z"/></svg>'
+  };
+
+  const syncPlayButton=(video,button)=>{
+    const paused=video.paused || video.ended;
+    button.innerHTML=icons[paused?'play':'pause'];
+    button.setAttribute('aria-label',paused?'Reproduzir vídeo':'Pausar vídeo');
+    button.title=paused?'Reproduzir':'Pausar';
+  };
+
+  const syncVolumeButton=(video,button)=>{
+    button.innerHTML=icons[video.muted?'muted':'volume'];
+    button.setAttribute('aria-label',video.muted?'Ativar som':'Silenciar vídeo');
+    button.title=video.muted?'Ativar som':'Silenciar';
+  };
+
+  reviewVideos.forEach(video=>{
+    if(video.closest('.review-video-shell')) return;
+    video.removeAttribute('controls');
+    video.classList.add('review-custom-video');
+
+    const shell=document.createElement('span');
+    shell.className='review-video-shell';
+    video.parentNode.insertBefore(shell,video);
+    shell.appendChild(video);
+
+    const controls=document.createElement('span');
+    controls.className='review-mini-controls';
+    controls.setAttribute('role','group');
+    controls.setAttribute('aria-label','Controles do vídeo da avaliação');
+
+    const playButton=document.createElement('button');
+    playButton.type='button';
+    playButton.className='review-mini-control play';
+
+    const progress=document.createElement('input');
+    progress.className='review-mini-progress';
+    progress.type='range';
+    progress.min='0';
+    progress.max='1000';
+    progress.value='0';
+    progress.setAttribute('aria-label','Progresso do vídeo');
+    progress.style.setProperty('--review-progress','0%');
+
+    const volumeButton=document.createElement('button');
+    volumeButton.type='button';
+    volumeButton.className='review-mini-control volume';
+
+    controls.append(playButton,progress,volumeButton);
+    shell.appendChild(controls);
+
+    ['click','dblclick','pointerdown','touchstart'].forEach(type=>{
+      controls.addEventListener(type,event=>event.stopPropagation(),{passive:type==='touchstart'});
+    });
+
+    playButton.addEventListener('click',()=>{
+      if(video.paused || video.ended){
+        reviewVideos.forEach(other=>{if(other!==video) other.pause();});
+        const playPromise=video.play();
+        if(playPromise && typeof playPromise.catch==='function') playPromise.catch(()=>{});
+      }else{
+        video.pause();
+      }
+    });
+
+    volumeButton.addEventListener('click',()=>{
+      video.muted=!video.muted;
+      syncVolumeButton(video,volumeButton);
+    });
+
+    progress.addEventListener('input',()=>{
+      if(Number.isFinite(video.duration) && video.duration>0){
+        video.currentTime=(Number(progress.value)/1000)*video.duration;
+      }
+    });
+
+    const syncProgress=()=>{
+      const ratio=Number.isFinite(video.duration) && video.duration>0 ? video.currentTime/video.duration : 0;
+      const value=Math.max(0,Math.min(1000,Math.round(ratio*1000)));
+      progress.value=String(value);
+      progress.style.setProperty('--review-progress',`${value/10}%`);
+    };
+
+    video.addEventListener('play',()=>syncPlayButton(video,playButton));
+    video.addEventListener('pause',()=>syncPlayButton(video,playButton));
+    video.addEventListener('ended',()=>{syncPlayButton(video,playButton);syncProgress();});
+    video.addEventListener('timeupdate',syncProgress);
+    video.addEventListener('loadedmetadata',syncProgress);
+    video.addEventListener('volumechange',()=>syncVolumeButton(video,volumeButton));
+
+    syncPlayButton(video,playButton);
+    syncVolumeButton(video,volumeButton);
+    syncProgress();
+  });
+})();
