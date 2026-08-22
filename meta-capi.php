@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
+header('X-Content-Type-Options: nosniff');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -19,7 +20,21 @@ if ($accessToken === '') {
     exit;
 }
 
-$input = json_decode(file_get_contents('php://input') ?: '', true);
+$contentType = strtolower((string)($_SERVER['CONTENT_TYPE'] ?? ''));
+if (strpos($contentType, 'application/json') !== 0) {
+    http_response_code(415);
+    echo json_encode(['ok' => false, 'error' => 'unsupported_media_type']);
+    exit;
+}
+
+$rawInput = file_get_contents('php://input') ?: '';
+if (strlen($rawInput) > 32768) {
+    http_response_code(413);
+    echo json_encode(['ok' => false, 'error' => 'payload_too_large']);
+    exit;
+}
+
+$input = json_decode($rawInput, true);
 if (!is_array($input)) {
     http_response_code(400);
     echo json_encode(['ok' => false, 'error' => 'invalid_json']);
@@ -41,8 +56,15 @@ if ($eventId === '') {
     exit;
 }
 
-$customData = $input['custom_data'] ?? [];
-if (!is_array($customData)) $customData = [];
+$customDataInput = $input['custom_data'] ?? [];
+if (!is_array($customDataInput)) $customDataInput = [];
+$customData = [];
+foreach (['content_name', 'content_type', 'currency', 'value', 'num_items'] as $key) {
+    if (array_key_exists($key, $customDataInput)) $customData[$key] = $customDataInput[$key];
+}
+if (isset($customDataInput['content_ids']) && is_array($customDataInput['content_ids'])) {
+    $customData['content_ids'] = array_slice(array_map('strval', $customDataInput['content_ids']), 0, 10);
+}
 
 $userData = [
     'client_ip_address' => $_SERVER['REMOTE_ADDR'] ?? '',
@@ -88,7 +110,7 @@ if ($response === false || $status < 200 || $status >= 300) {
         'ok' => false,
         'error' => 'meta_request_failed',
         'status' => $status,
-        'detail' => $error
+        'detail' => $error === '' ? 'upstream_error' : 'connection_error'
     ]);
     exit;
 }

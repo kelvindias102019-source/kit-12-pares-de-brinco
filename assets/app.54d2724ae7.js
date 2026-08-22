@@ -201,7 +201,11 @@
     const flashSubPrice=document.getElementById('flashSubPrice');
 
     const priceConfig={
-      'kit-12':{promo:8.90,regular:19.90,maxQty:3}
+      'kit-12':{
+        promoByQty:Object.freeze({1:7.90,2:17.80,3:26.70}),
+        regular:19.90,
+        maxQty:3
+      }
     };
     const currentVariant=()=>['kit-12'].includes(selectedVariant)?selectedVariant:'kit-12';
     const currentPriceConfig=()=>priceConfig[currentVariant()];
@@ -212,10 +216,11 @@
       if(q>config.maxQty) q=config.maxQty;
       if(q<1) q=1;
       qty.value=q;
-      if(promoPrice) promoPrice.textContent=brl(config.promo*q);
+      const promoTotal=config.promoByQty[q];
+      if(promoPrice) promoPrice.textContent=brl(promoTotal);
       if(oldPrice) oldPrice.textContent=brl(config.regular*q);
-      buyPrice.textContent=brl(config.promo*q);
-      if(flashPrice) flashPrice.textContent=brl(config.promo*q);
+      buyPrice.textContent=brl(promoTotal);
+      if(flashPrice) flashPrice.textContent=brl(promoTotal);
       if(flashSubPrice) flashSubPrice.textContent=brl(config.regular*q);
       minusBtn.disabled=q<=1;
       plusBtn.disabled=q>=config.maxQty;
@@ -371,7 +376,7 @@
       calcCep.disabled=false;
       calcCep.textContent='Calcular';
       cepStatus.classList.remove('error');
-      cepStatus.textContent='Frete grátis com cupom. Informe seu CEP para verificar a entrega.';
+      cepStatus.textContent='';
       freteHeadline.textContent='Calcule o frete para sua região';
       freteHeadline.style.color='#fff';
       freteValor.textContent='—';
@@ -407,7 +412,7 @@
         const cartVariant=currentVariant();
         const cartConfig=currentPriceConfig();
         sessionStorage.setItem('brbbCartQty', String(q));
-        sessionStorage.setItem('brbbCartUnitPrice', String(cartConfig.promo));
+        sessionStorage.setItem('brbbCartUnitPrice', String(cartConfig.promoByQty[q]));
         sessionStorage.setItem('brbbCartVariant', cartVariant);
         metaTrack('AddToCart',{
           content_name:'Kit 12 Pares de Brincos Pontos de Luz - '+cartVariant.replace('kit-','Kit '),
@@ -430,7 +435,7 @@
         const cartVariant=currentVariant();
         const cartConfig=currentPriceConfig();
         sessionStorage.setItem('brbbCartQty', String(q));
-        sessionStorage.setItem('brbbCartUnitPrice', String(cartConfig.promo));
+        sessionStorage.setItem('brbbCartUnitPrice', String(cartConfig.promoByQty[q]));
         sessionStorage.setItem('brbbCartVariant', cartVariant);
         openIntegratedCheckout();
       });
@@ -572,11 +577,10 @@
       const variant=sessionStorage.getItem('brbbCartVariant')||'kit-12';
       const validVariant=['kit-12'].includes(variant)?variant:'kit-12';
       const qty=Math.max(1,Math.min(3,Number(sessionStorage.getItem('brbbCartQty')||1)));
-      const unit=8.90;
-      const total=unit*qty;
+      const total=({1:7.90,2:17.80,3:26.70})[qty];
 
       sessionStorage.setItem('brbbCartQty',String(qty));
-      sessionStorage.setItem('brbbCartUnitPrice',String(unit));
+      sessionStorage.setItem('brbbCartUnitPrice',String(total));
       sessionStorage.setItem('brbbCartVariant',validVariant);
 
       const productImage=document.getElementById('coProductImage');

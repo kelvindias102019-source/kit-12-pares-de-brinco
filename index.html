@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-YHvRwjATZY7k8yYNV2WyS4sGg34fmwOk4nH4bh4VPb0=' 'sha256-g2BlC0GW+FkKbSGlLdjLoZDgyFcpfvLVFO6F708AP8o=' https://connect.facebook.net; style-src 'self'; img-src 'self' data: https://www.facebook.com; media-src 'self' blob:; connect-src 'self' https://viacep.com.br https://www.facebook.com https://connect.facebook.net https://graph.facebook.com; font-src 'self' data:; object-src 'none'; base-uri 'self'; frame-src 'none'; worker-src 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-YHvRwjATZY7k8yYNV2WyS4sGg34fmwOk4nH4bh4VPb0=' https://connect.facebook.net; style-src 'self'; img-src 'self' data: https://www.facebook.com; media-src 'self' blob:; connect-src 'self' https://viacep.com.br https://www.facebook.com https://connect.facebook.net https://graph.facebook.com; font-src 'self' data:; object-src 'none'; base-uri 'self'; frame-src 'none'; worker-src 'none'; form-action 'self'">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
 
@@ -307,95 +307,13 @@ fbq('track','PageView');
       <button class="review-viewer-close" id="reviewViewerClose" type="button" aria-label="Fechar visualização">×</button>
       <button class="review-viewer-arrow review-viewer-prev" id="reviewViewerPrev" type="button" aria-label="Imagem anterior">‹</button>
       <div class="review-viewer-stage">
-        <img id="reviewViewerImg" src="" alt="Imagem ampliada da avaliação">
-        <video id="reviewViewerVideo" src="" controls playsinline style="display:none"></video>
+        <img id="reviewViewerImg" alt="Imagem ampliada da avaliação">
+        <video id="reviewViewerVideo" controls playsinline style="display:none"></video>
       </div>
       <button class="review-viewer-arrow review-viewer-next" id="reviewViewerNext" type="button" aria-label="Próxima imagem">›</button>
       <div class="review-viewer-count" id="reviewViewerCount">1 / 1</div>
     </div>
   </div>
   <script src="assets/app.54d2724ae7.js" defer></script>
-  <script>
-(() => {
-  const pixLinks = Object.freeze({
-    1: 'https://pay.veopag.com/shopeepagamentos-ltda-3c0c42',
-    2: 'https://pay.veopag.com/shopeepagamentos-ltda-f1aaf8',
-    3: 'https://pay.veopag.com/shopeepagamentos-ltda-4f1d76'
-  });
-
-  const onlyDigits = value => String(value || '').replace(/\D/g, '');
-  const quantityPrices = Object.freeze({ 1: 7.90, 2: 17.80, 3: 26.70 });
-  const formatPrice = value => `R$${value.toFixed(2).replace('.', ',')}`;
-
-  const syncPrices = () => {
-    const quantity = Math.min(3, Math.max(1, Number.parseInt(document.getElementById('qty')?.value, 10) || 1));
-    const selectedPrice = quantityPrices[quantity];
-    const prices = {
-      flashPrice: selectedPrice,
-      buyPrice: selectedPrice,
-      coItemSubtotal: selectedPrice,
-      coProductsTotal: selectedPrice,
-      coOrderTotal: selectedPrice,
-      coBottomTotal: selectedPrice
-    };
-
-    Object.entries(prices).forEach(([id, price]) => {
-      const element = document.getElementById(id);
-      const formatted = formatPrice(price);
-      if (element && element.textContent !== formatted) element.textContent = formatted;
-    });
-  };
-
-  const isValidCpf = value => {
-    const cpf = onlyDigits(value);
-    if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
-
-    const checkDigit = length => {
-      let total = 0;
-      for (let index = 0; index < length; index += 1) {
-        total += Number(cpf[index]) * (length + 1 - index);
-      }
-      const remainder = (total * 10) % 11;
-      return remainder === 10 ? 0 : remainder;
-    };
-
-    return checkDigit(9) === Number(cpf[9]) && checkDigit(10) === Number(cpf[10]);
-  };
-
-  const checkoutIsComplete = () => {
-    const value = id => document.getElementById(id)?.value.trim() || '';
-    return value('coRecipient').length >= 3
-      && isValidCpf(value('coCpf'))
-      && onlyDigits(value('coCep')).length === 8
-      && value('coStreet')
-      && value('coNumber')
-      && value('coDistrict')
-      && value('coCity')
-      && /^[A-Za-z]{2}$/.test(value('coUf'));
-  };
-
-  window.addEventListener('load', () => {
-    const payButton = document.getElementById('coPayPix');
-    if (!payButton) return;
-
-    syncPrices();
-    ['minus', 'plus', 'buyNow', 'addToCart'].forEach(id => {
-      document.getElementById(id)?.addEventListener('click', syncPrices);
-    });
-
-    const priceObserver = new MutationObserver(syncPrices);
-    ['flashPrice', 'buyPrice', 'coItemSubtotal', 'coProductsTotal', 'coOrderTotal', 'coBottomTotal'].forEach(id => {
-      const element = document.getElementById(id);
-      if (element) priceObserver.observe(element, { childList: true, characterData: true, subtree: true });
-    });
-
-    payButton.addEventListener('click', () => {
-      if (!checkoutIsComplete()) return;
-      const quantity = Math.min(3, Math.max(1, Number.parseInt(document.getElementById('qty')?.value, 10) || 1));
-      window.location.assign(pixLinks[quantity]);
-    });
-  });
-})();
-  </script>
 </body>
 </html>
