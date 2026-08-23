@@ -101,8 +101,10 @@
     let galleryIndex=0;
     let galleryTimer=null;
     let galleryAutoplayEnabled=true;
-    let selectedVariant='kit-12';
-    const variantToIndex={'kit-12':0};
+    let selectedVariant='com-maleta';
+    const variantToIndex=Object.freeze({'com-maleta':1,'sem-maleta':2});
+    const variantLabels=Object.freeze({'com-maleta':'Com maleta','sem-maleta':'Sem maleta'});
+    const variantImages=Object.freeze({'com-maleta':'assets/opcao-maleta.jpg','sem-maleta':'assets/opcao-sem-maleta.jpg'});
 
     const setActiveVariant=(variant)=>{
       variantButtons.forEach(btn=>{
@@ -200,14 +202,16 @@
     const flashPrice=document.getElementById('flashPrice');
     const flashSubPrice=document.getElementById('flashSubPrice');
 
-    const priceConfig={
-      'kit-12':{
-        promoByQty:Object.freeze({1:7.90,2:17.80,3:26.70}),
-        regular:19.90,
-        maxQty:3
-      }
-    };
-    const currentVariant=()=>['kit-12'].includes(selectedVariant)?selectedVariant:'kit-12';
+    const sharedPriceConfig=Object.freeze({
+      promoByQty:Object.freeze({1:7.90,2:17.80,3:26.70}),
+      regular:19.90,
+      maxQty:3
+    });
+    const priceConfig=Object.freeze({
+      'com-maleta':sharedPriceConfig,
+      'sem-maleta':sharedPriceConfig
+    });
+    const currentVariant=()=>['com-maleta','sem-maleta'].includes(selectedVariant)?selectedVariant:'com-maleta';
     const currentPriceConfig=()=>priceConfig[currentVariant()];
     const brl=value=>value.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}).replace(/ /g,'');
 
@@ -415,7 +419,7 @@
         sessionStorage.setItem('brbbCartUnitPrice', String(cartConfig.promoByQty[q]));
         sessionStorage.setItem('brbbCartVariant', cartVariant);
         metaTrack('AddToCart',{
-          content_name:'Kit 12 Pares de Brincos Pontos de Luz - '+cartVariant.replace('kit-','Kit '),
+          content_name:'Kit 12 Pares de Brincos Pontos de Luz - '+variantLabels[cartVariant],
           content_type:'product',
           content_ids:['kit-12-pares-ponto-luz'],
           currency:'BRL',
@@ -574,8 +578,8 @@
     };
 
     const refreshTotals=()=>{
-      const variant=sessionStorage.getItem('brbbCartVariant')||'kit-12';
-      const validVariant=['kit-12'].includes(variant)?variant:'kit-12';
+      const variant=sessionStorage.getItem('brbbCartVariant')||'com-maleta';
+      const validVariant=['com-maleta','sem-maleta'].includes(variant)?variant:'com-maleta';
       const qty=Math.max(1,Math.min(3,Number(sessionStorage.getItem('brbbCartQty')||1)));
       const total=({1:7.90,2:17.80,3:26.70})[qty];
 
@@ -589,14 +593,14 @@
       const couponBadge=document.getElementById('coCouponBadge');
 
       if(productImage){
-        productImage.src='assets/ponto-luz-12-pares-01.png';
-        productImage.alt='Kit 12 pares de brincos pontos de luz';
+        productImage.src=variantImages[validVariant];
+        productImage.alt='Opção '+variantLabels[validVariant].toLowerCase();
       }
       if(productName){
         productName.textContent='Kit 12 Pares de Brincos Pontos de Luz Femininos com Zircônia Vários Tamanhos';
       }
       if(variantText){
-        variantText.textContent='Kit: 12 pares de brincos pontos de luz';
+        variantText.textContent='Opção: '+variantLabels[validVariant];
       }
       if(couponBadge) couponBadge.textContent='15% OFF';
 
@@ -675,10 +679,10 @@
       clearTimeout(checkoutTransitionTimer);
 
       refreshTotals();
-      const metaCheckoutVariant=sessionStorage.getItem('brbbCartVariant')||'kit-12';
+      const metaCheckoutVariant=sessionStorage.getItem('brbbCartVariant')||'com-maleta';
       const metaCheckoutQty=Math.max(1,Math.min(3,Number(sessionStorage.getItem('brbbCartQty')||1)));
       metaTrack('InitiateCheckout',{
-        content_name:'Kit 12 Pares de Brincos Pontos de Luz - '+metaCheckoutVariant.replace('kit-','Kit '),
+        content_name:'Kit 12 Pares de Brincos Pontos de Luz - '+(variantLabels[metaCheckoutVariant]||variantLabels['com-maleta']),
         content_type:'product',
         content_ids:['kit-12-pares-ponto-luz'],
         currency:'BRL',
@@ -775,7 +779,7 @@
         return showNotice('Endereço incompleto','Informe o número do endereço.');
       }
 
-      const checkoutVariant=sessionStorage.getItem('brbbCartVariant')||'kit-12';
+      const checkoutVariant=sessionStorage.getItem('brbbCartVariant')||'com-maleta';
       const checkoutQty=Math.max(1,Math.min(3,Number(sessionStorage.getItem('brbbCartQty')||1)));
 
       const pixCheckoutByQty={
@@ -786,7 +790,7 @@
       const pixUrl=pixCheckoutByQty[checkoutQty]||pixCheckoutByQty[1];
 
       metaTrack('AddPaymentInfo',{
-        content_name:'Kit 12 Pares de Brincos Pontos de Luz - '+checkoutVariant.replace('kit-','Kit '),
+        content_name:'Kit 12 Pares de Brincos Pontos de Luz - '+(variantLabels[checkoutVariant]||variantLabels['com-maleta']),
         content_type:'product',
         content_ids:['kit-12-pares-ponto-luz'],
         currency:'BRL',

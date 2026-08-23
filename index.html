@@ -67,6 +67,8 @@ fbq('track','PageView');
         </div>
         <div class="thumbs" id="thumbs">
           <div class="thumb active" data-type="image" data-src="assets/ponto-luz-12-pares-oferta.png"><img src="assets/ponto-luz-12-pares-oferta.png" alt="Oferta Kit 12 pares de joias por R$ 7,90"></div>
+          <div class="thumb" data-type="image" data-src="assets/opcao-maleta.jpg"><img src="assets/opcao-maleta.jpg" alt="Opção com maleta para organizar as joias"></div>
+          <div class="thumb" data-type="image" data-src="assets/opcao-sem-maleta.jpg"><img src="assets/opcao-sem-maleta.jpg" alt="Opção sem maleta com as joias expostas"></div>
           <div class="thumb" data-type="image" data-src="assets/ponto-luz-12-pares-01.png"><img src="assets/ponto-luz-12-pares-01.png" alt="Kit 12 pares de brincos pontos de luz"></div>
           <div class="thumb" data-type="image" data-src="assets/ponto-luz-12-pares-02.png"><img src="assets/ponto-luz-12-pares-02.png" alt="Brincos pontos de luz em vários tamanhos"></div>
           <div class="thumb" data-type="image" data-src="assets/ponto-luz-12-pares-03.png"><img src="assets/ponto-luz-12-pares-03.png" alt="Mostruário de brincos pontos de luz"></div>
@@ -82,10 +84,15 @@ fbq('track','PageView');
         <div class="row"><div class="label">Frete</div><div class="value"><div class="ship" id="freteHeadline" style="color:#fff;font-weight:400">Calcule o frete para sua região</div><div class="cep-wrap"><input id="cep" class="cep-input" inputmode="numeric" autocomplete="postal-code" maxlength="9" placeholder="Digite seu CEP"><button id="calcCep" class="cep-btn" type="button">Calcular</button></div><div id="cepStatus" class="cep-status"></div><div class="freight-line">Frete <span id="freteOriginal" class="frete-original" hidden></span><strong id="freteValor">—</strong></div></div></div>
         
         <div class="row">
-          <div class="label">Kits</div>
-          <div class="variant-options earring-kits" id="variantOptions">
-            <button class="variant-option earring-kit active" id="optionKit12" type="button" data-variant="kit-12" aria-pressed="true">
-              <span class="variant-text"><span class="variant-name">Kit 12 pares de brincos pontos de luz</span></span>
+          <div class="label">Opção</div>
+          <div class="variant-options maleta-options" id="variantOptions">
+            <button class="variant-option maleta-option active" id="optionComMaleta" type="button" data-variant="com-maleta" aria-pressed="true">
+              <img src="assets/opcao-maleta.jpg" alt="Com maleta">
+              <span class="variant-text"><span class="variant-name">Com maleta</span></span>
+            </button>
+            <button class="variant-option maleta-option" id="optionSemMaleta" type="button" data-variant="sem-maleta" aria-pressed="false">
+              <img src="assets/opcao-sem-maleta.jpg" alt="Sem maleta">
+              <span class="variant-text"><span class="variant-name">Sem maleta</span></span>
             </button>
           </div>
         </div>
@@ -258,10 +265,10 @@ fbq('track','PageView');
           <div class="checkout-card-title">Produtos pedidos</div>
           <div class="checkout-shop-line">BRBBJoias</div>
           <div class="checkout-product-row">
-            <img class="checkout-product-img" id="coProductImage" src="assets/ponto-luz-12-pares-01.png" alt="Kit 12 pares de brincos pontos de luz">
+            <img class="checkout-product-img" id="coProductImage" src="assets/opcao-maleta.jpg" alt="Opção com maleta">
             <div>
               <div class="checkout-product-name" id="coProductName">Kit 12 Pares de Brincos Pontos de Luz Femininos com Zircônia Vários Tamanhos</div>
-              <div class="checkout-muted" id="coVariantText">Kit: 12 pares de brincos pontos de luz</div>
+              <div class="checkout-muted" id="coVariantText">Opção: Com maleta</div>
               <div class="checkout-muted" id="coQtyText">Quantidade: 1</div>
             </div>
             <div class="checkout-price-col"><strong id="coItemSubtotal">R$7,90</strong><span>com cupom</span></div>
